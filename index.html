@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        #main_box{
+            width: 200px;
+            height: 200px;
+            max-width: 200px;
+            margin: 100px 0 0 100px;
+            position: relative;
+            border: solid 1px red;
+            text-align: center;
+        }
+        #ps{
+            position: absolute;
+            left: 0px;
+            top: 0;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main_box">
+        <img id="ps" draggable="false"  width="100px;" src="ps.png" alt="">
+    </div>
+    <input id="input" accept="image/*" type="file">
+    <button id="merge">合成</button>
+</body>
+</html>
+<script>
+    var input = document.getElementById('input');
+    var main_box = document.getElementById('main_box');
+    var ps_img = document.getElementById('ps');
+    var merge_btn = document.getElementById('merge');
+
+    var change_img = new Image();
+
+    input.addEventListener('change',function(){
+        var this_file = this.files[0];
+        var reader = new FileReader();
+        reader.onload = function(){
+            change_img.setAttribute('src',this.result);
+            change_img.style.width = "100%"
+            main_box.appendChild(change_img);
+        };
+        reader.readAsDataURL(this_file);
+    })
+
+    var flage = {};
+    flage.test = false;
+    ps_img.addEventListener('mousedown',function(e_out){
+        flage.test = false;
+
+        var offsetX = e_out.offsetX;
+        var offsetY = e_out.offsetY;
+      
+        var main_func = function(e){
+            ps_img.style.left = e.pageX - 100 - offsetX + "px";
+            ps_img.style.top = e.pageY - 100 - offsetY + "px";
+        }
+
+
+        ps_img.addEventListener('mousemove',function(e){
+            if(!flage.test){
+                main_func(e);
+            }
+        })   
+
+        ps_img.addEventListener('mouseup',function(){
+            flage.test = true;
+            
+        });
+    });
+    merge_btn.onclick = function(){
+        // console.log(getComputedStyle(main_box).width);
+        var canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 200;
+        var context = canvas.getContext('2d');
+        context.fillStyle = "transparent";
+        context.fill();
+
+        context.drawImage(change_img,0,0,200,200);
+        context.drawImage(ps_img,20,20,100,100);
+        main_box.appendChild(canvas);
+    }
+
+</script>
